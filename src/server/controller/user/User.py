@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify
 from dao.DataAccessObject import DataAccessObject
 
 
@@ -6,9 +6,7 @@ user = Blueprint('user', 'API')
 
 @user.route('/user/<user>', methods=['GET'])
 def get_user_info(user):
-	dao = DataAccessObject()
-	conn = dao.getConnection()
-
+	conn = DataAccessObject().getConnection()
 	cur = conn.cursor()
 
 	sql = '''
