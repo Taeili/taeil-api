@@ -1,31 +1,14 @@
 from flask import Blueprint, jsonify
-from dao.DataAccessObject import DataAccessObject
-
+from model.User import User
+from model.ModelFactory import ModelFactory
 
 user = Blueprint('user', 'API')
 
-@user.route('/user/<user>', methods=['GET'])
-def get_user_info(user):
-	conn = DataAccessObject().getConnection()
-	cur = conn.cursor()
+@user.route('/user/<user_id>', methods=['GET'])
+def get_user_info(user_id):
 
-	sql = '''
-		SELECT 
-			email,
-			name,
-			nickname,
-			sns,
-			created
-		FROM 
-			sinsa.user 
-		WHERE
-		    id = %s
-		'''
-	cur.execute(sql, [user])
-	user_info = cur.fetchall()
-
-	cur.close()
-	conn.close()
+	factory = ModelFactory()
+	user_info = factory.get(User, id=user_id)
 
 	return jsonify(status=200, message='OK', body={
 		'status': 200,
