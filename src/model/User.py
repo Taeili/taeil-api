@@ -5,7 +5,7 @@ class User(object):
 	def get(self, id):
 
 		conn = DataAccessObject().getConnection()
-		cur = conn.cursor()
+		cursor = conn.cursor()
 
 		sql = '''
 				SELECT 
@@ -17,12 +17,12 @@ class User(object):
 				FROM 
 					sinsa.user 
 				WHERE
-				    id = %s
-				'''
-		cur.execute(sql, [id])
-		user_info = cur.fetchall()
+				    id = {id}
+				'''.format(id=id)
+		cursor.execute(sql)
+		user_info = cursor.fetchall()
 
-		cur.close()
+		cursor.close()
 		conn.close()
 
 		return user_info
