@@ -1,11 +1,11 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, render_template
 from model.User import User
 from model.ModelFactory import ModelFactory
 
 user = Blueprint('user', 'API')
 
 @user.route('/user/<user_id>', methods=['GET'])
-def get_user_info(user_id):
+def get_users(user_id):
 
 	factory = ModelFactory()
 	user_info = factory.get(User, id=user_id)
@@ -15,3 +15,7 @@ def get_user_info(user_id):
 		'message': 'OK',
 		'payload': user_info
 	})
+
+@user.route('/register', methods=['GET'])
+def get_register_form():
+	return render_template('register.html')
