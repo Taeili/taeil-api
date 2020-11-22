@@ -1,24 +1,25 @@
 from dao.DataAccessObject import DataAccessObject
+from psycopg2.extras import RealDictCursor
+import json
 
 class Product(object):
 
 	def read(self):
 		conn = DataAccessObject().getConnection()
-		cursor = conn.cursor()
+		cursor = conn.cursor(cursor_factory=RealDictCursor)
 
 		sql = '''
-				SELECT 
-					p.seller,
-					p.name,
-					pp.price,
-					pi.path,
-					pi.url
-				FROM 
-					sinsa.product as p
-				INNER JOIN product_price as pp ON p.id = pp.product 
-				INNER JOIN product_image as pi ON p.id = pi.product
+				SELECT
+				    p.id,
+				    p.seller,
+				    p.name,
+				    pp.price,
+				       (select array_to_json(array_agg(product_image)) from product_image where product_id=p.id) as image
+				FROM
+				    sinsa.product as p
+				    INNER JOIN product_price as pp ON p.id = pp.product_id
 				WHERE
-				    status=100
+				        p.status=100
 				'''
 		cursor.execute(sql)
 		products = cursor.fetchall()
@@ -30,23 +31,24 @@ class Product(object):
 
 	def get(self, id):
 		conn = DataAccessObject().getConnection()
-		cursor = conn.cursor()
+		cursor = conn.cursor(cursor_factory=RealDictCursor)
 
 		sql = '''
-					SELECT 
+					SELECT
+						p.id,
 						p.seller,
 						p.name,
 						pp.price,
-						pi.path,
-						pi.url
+						(select array_to_json(array_agg(product_image)) from product_image where product_id={id}) as image
 					FROM 
 						sinsa.product as p
-					INNER JOIN product_price as pp ON p.id = pp.product 
-					INNER JOIN product_image as pi ON p.id = pi.product
+					INNER JOIN product_price as pp ON p.id = pp.product_id
+
 					WHERE
 					    status=100
-					    id={id}
+					    AND p.id={id}
 					'''.format(id=id)
+
 		cursor.execute(sql)
 		product = cursor.fetchall()
 
@@ -66,12 +68,16 @@ class Product(object):
 					{seller},
 					'{name}'
 				)
+				returning id
 				'''.format(seller=seller,
 		                   name=name)
 
 		cursor.execute(sql)
+		conn.commit()
+
+		product_id = cursor.fetchone()[0]
 
 		cursor.close()
 		conn.close()
 
-		return
+		return product_id

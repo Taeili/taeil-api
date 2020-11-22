@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, render_template
-from model.User import User
+from mo.user.User import User
 from model.ModelFactory import ModelFactory
 
 user = Blueprint('user', 'API')
