@@ -39,7 +39,9 @@ class Product(object):
 						p.seller,
 						p.name,
 						pp.price,
-						(select array_to_json(array_agg(product_image)) from product_image where product_id={id}) as image
+						(select array_to_json(array_agg(product_image)) from product_image where product_id={id}) as image,
+						(select array_to_json(array_agg(DISTINCT size)) from product_option where product_id={id}) as size,
+						(select array_to_json(array_agg(DISTINCT color)) from product_option where product_id={id}) as color
 					FROM 
 						sinsa.product as p
 					INNER JOIN product_price as pp ON p.id = pp.product_id
