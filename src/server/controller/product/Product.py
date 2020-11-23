@@ -40,4 +40,4 @@ def create_product():
 		factory.create(ProductImage, product_id=product_id, seq=int(seq), path=image['path'], url=image['url'])
 	factory.create(ProductPrice, product_id=product_id, price=data['price'])
 
-	return jsonify(status=200, message='OK')
+	return jsonify(status=201, message='Created')
